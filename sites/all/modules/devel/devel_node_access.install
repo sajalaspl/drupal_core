@@ -1,0 +1,9 @@
+<?php
+// $Id: devel_node_access.install,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+
+function devel_node_access_install() {
+}
+
+function devel_node_access_uninstall() {
+  variable_del('devel_node_access_debug_mode');
+}

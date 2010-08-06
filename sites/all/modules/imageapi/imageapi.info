@@ -1,0 +1,13 @@
+; $Id: imageapi.info,v 1.1 2010/06/29 07:05:30 sajal Exp $
+name = ImageAPI
+description = ImageAPI supporting multiple toolkits.
+package = ImageCache
+core = 6.x
+php = 5.1
+
+; Information added by drupal.org packaging script on 2010-05-01
+version = "6.x-1.8"
+core = "6.x"
+project = "imageapi"
+datestamp = "1272675611"
+

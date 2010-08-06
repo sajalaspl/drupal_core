@@ -1,0 +1,10 @@
+/* $Id: garland-rtl.css,v 1.1.1.1 2010/07/16 06:17:01 bhargav Exp $ */
+
+ul.quicktabs_tabs.quicktabs-style-garland li {
+  float: right;
+}
+
+ul.quicktabs_tabs.quicktabs-style-garland li a:link,
+ul.quicktabs_tabs.quicktabs-style-garland li a:visited {
+  padding: 8px 11px 4px 12px;
+}

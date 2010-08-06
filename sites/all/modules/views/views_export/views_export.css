@@ -1,0 +1,13 @@
+/* $Id: views_export.css,v 1.1 2010/06/29 07:05:43 sajal Exp $ */
+
+div.export-container table input,
+div.export-container table th,
+div.export-container table td {
+  padding: 0 0 0 .5em;
+  margin: 0;
+  vertical-align: top;
+}
+
+div.export-container table td input {
+  margin-top: .25em;
+}

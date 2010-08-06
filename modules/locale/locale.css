@@ -1,0 +1,6 @@
+/* $Id: locale.css,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $ */
+
+.locale-untranslated {
+  font-style: normal;
+  text-decoration: line-through;
+}

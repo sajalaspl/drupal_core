@@ -1,0 +1,6 @@
+// $Id: DEVELOPER.txt,v 1.1 2010/06/29 07:05:25 sajal Exp $
+
+DEVELOPER DOCUMENTATION
+UPDATING FROM 5.x TO 6.x
+
+See http://drupal.org/node/191796 for a guide to updating field modules.

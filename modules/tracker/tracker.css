@@ -1,0 +1,8 @@
+/* $Id: tracker.css,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $ */
+
+#tracker td.replies {
+  text-align: center;
+}
+#tracker table {
+  width: 100%;
+}

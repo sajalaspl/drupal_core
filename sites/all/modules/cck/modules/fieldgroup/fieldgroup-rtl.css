@@ -1,0 +1,6 @@
+/* $Id: fieldgroup-rtl.css,v 1.1 2010/06/29 07:05:25 sajal Exp $ */
+
+div.fieldgroup .content {
+  padding-left:0;
+  padding-right:1em;
+}

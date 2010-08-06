@@ -1,0 +1,105 @@
+<?php
+// $Id: flag_abuse.module,v 1.1 2010/07/24 07:30:33 sajal Exp $
+
+/**
+ * Implementation of hook_flag_default_flags().
+ */
+function flag_abuse_flag_default_flags() {
+  $flags = array();
+  module_load_include('inc', 'flag_abuse', 'includes/flag_abuse.flag_default');
+  _flag_abuse_abuse_node_flags($flags);
+  _flag_abuse_abuse_comment_flags($flags);
+  _flag_abuse_abuse_user_flags($flags);
+  // @todo: module implements?
+  return $flags;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function flag_abuse_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'flag_abuse') . '/includes',
+  );
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function flag_abuse_perm() {
+  return array('reset abuse flags');
+}
+
+/**
+ * Implementation of hook_preprocess_flag().
+ *
+ * Here we change our flag event/action to 'reset'.
+ */
+function flag_abuse_preprocess_flag(&$vars) {
+  global $user;
+  
+  // permmission check instead of a role
+  if (user_access('reset abuse flags', $user)) {
+    // is this one of our abuse flags
+    // @todo: should be dynamic
+    if (in_array($vars['flag']->name, array('abuse_node', 'abuse_comment', 'abuse_user'))) {
+      $vars['action'] = 'reset';
+      $vars['link_text'] = t('Reset flags');
+      $vars['link_title'] = t('Remove all flags on this content');
+    }
+  }
+}
+
+/**
+ * Implementation of hook_flag().
+ *
+ * If a user with appropriate permission/role flags this content from our view
+ * we want to remove all flags. http://drupal.org/node/327901#comment-1085685
+ *
+ * @todo: When $flag->access() goes in, use this to limit access to a flag that
+ * an administrator has already acted upon. http://drupal.org/node/322034
+ */
+function flag_abuse_flag($event, $flag, $content_id, $account) {
+  // permmission check instead of a role
+  if (user_access('reset abuse flags', $account)) {
+    // is this one of our abuse flags
+    // @todo: should be dynamic
+    if (in_array($flag->name, array('abuse_node', 'abuse_comment', 'abuse_user'))) {
+      // remove all flag on this content
+      $query = db_query("SELECT uid FROM {flag_content} WHERE fid = %d", $flag->fid);
+      while ($result = db_fetch_object($query)) {
+        // Supposed to pass in a full $account here, let's see if we can fake it
+        $flag->flag('unflag', $content_id, $result, TRUE);
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_popups().
+ */
+function flag_abuse_popups() {
+  $popups = array();
+  $popups['*'] = array(
+    'a[href*=flag/confirm/flag/abuse_node]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+    'a[href*=flag/confirm/flag/abuse_comment]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+    'a[href*=flag/confirm/flag/abuse_user]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+    'a[href*=flag/confirm/unflag/abuse_node]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+    'a[href*=flag/confirm/unflag/abuse_comment]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+    'a[href*=flag/confirm/unflag/abuse_user]' => array(
+      'reloadWhenDone' => TRUE,
+    ),
+  );
+  return $popups;
+}

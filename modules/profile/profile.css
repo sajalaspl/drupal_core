@@ -1,0 +1,11 @@
+/* $Id: profile.css,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $ */
+
+#profile-fields td.category {
+  font-weight: bold;
+}
+#profile-fields tr.category-message {
+  color: #999;
+}
+#profile-fields tr.category-populated {
+  display: none;
+}

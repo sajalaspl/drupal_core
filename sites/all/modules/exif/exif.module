@@ -1,0 +1,300 @@
+<?php
+// $Id: exif.module,v 1.1 2010/06/29 07:05:28 sajal Exp $:
+
+/**
+ * @file implementing the drupal api
+ */
+/**
+ * @author: Raphael Sch�r - www.rapsli.ch, www.schaerwebdesign.ch
+ */
+
+function exif_menu() {
+  $items['admin/settings/exif'] = array(
+    'title' => 'Exif',
+    'page callback' => 'exif_admin_settings',
+    'access arguments' => array('administer site configuration'),
+    'description' => t('Display available fields'),
+    'access callback' => 'user_access',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/settings/exif/general'] = array(
+    'title' => 'Exif',
+    'page callback' => 'exif_admin_settings',
+    'access arguments' => array('administer site configuration'),
+    'description' => t('Display available fields'),
+    'access callback' => 'user_access',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/settings/exif/config'] = array(
+    'title' => 'Config',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('exif_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'description' => t('Some Settings'),
+    'access callback' => 'user_access',
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * The form definition for the admin settings
+ * @return array
+ *  form definition
+ */
+function exif_admin_settings_form() {
+  $forms = array();
+  $forms['exif_granularity'] = array(
+    '#type' => 'select',
+    '#title' => t('Granularity'),
+    '#options' => array(0 => t('Default'), 1 => ('Day')),
+    '#default_value' => variable_get('exif_granularity', 0),
+    '#description' => t('If a timestamp is select (for example the date the picture was taken), you can specify here how granular the timestamp should be. If you select default it will just take whatever is available in the picture. If you select Day, the Date saved will look something like 13-12-2008. This can be useful if you want to use some kind of grouping on the data.'),
+  );
+
+  $all_nodetypes = node_get_types();
+  $all_nt = array();
+  foreach ($all_nodetypes as $item) {
+    $all_nt[$item->type] = $item->name;
+  }
+  $forms['exif_nodetypes'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Nodetypes'),
+    '#options' => $all_nt,
+    '#default_value' => variable_get('exif_nodetypes', array()),
+    '#description' => t('Select nodetypes which should be checked for exif data. Incase the nodetypes contains more than one filefield, make sure that the imagefield is the first one!!!!'),
+  );
+
+  $forms['exif_update'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Refresh on node update'),
+    '#default_value' => variable_get('exif_update', TRUE),
+    '#description' => t('If you enable this option, Exif data is being updated when the node is being updated.'),
+  );
+  return system_settings_form($forms);
+}
+/**
+ * implementation of hook_nodeapi
+ */
+function exif_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+
+  if ($teaser) {
+    return;
+  }
+
+  switch ($op) {
+
+    case 'update':
+      //we are only going to update if we have said so
+      if (!variable_get('exif_update', TRUE)) {
+        break;
+      }
+    case 'insert':
+      if (_exif_check_for_exif_data($node->type)) {
+        $info = content_types($node->type);
+        $fields = $info['fields'];
+        $exif = _exif_get_class();
+
+        //get all the fields that will be filled with exif data
+        $ar_exif_fields = $exif->getExifFields($fields);
+
+        //get the path to the image
+        $image_path = _exif_get_image_path($fields, $node);
+
+        $fid = db_result(db_query("SELECT fid FROM {files} WHERE filepath = '%s'", $image_path));
+        $file = file_create_path($image_path);
+
+        $data1 = _exif_reformat($exif->readExifTags($file, $ar_exif_fields));
+        $data2 = $exif->readIPTCTags($file, $ar_exif_fields);
+        $data = array_merge($data1, $data2);
+
+        // prepare data to be stored in CCK
+        $i = 0;
+        foreach ($data as $key => $value) {
+          $field_name = 'field_'. $key;
+          $tmp = $node->$field_name;
+
+          $date_array = array('datetimeoriginal', 'datetime', 'datetimedigitized');
+          //incase we get a datefield, we need to reformat it to the ISO 8601 standard:
+          //which will look something like 2004-02-12T15:19:21
+          if (in_array($key, $date_array)) {
+            $date_time = explode(" ", $value);
+            $date_time[0] = str_replace(":", "-", $date_time[0]);
+            if (variable_get('exif_granularity', 0) == 1) {
+              $date_time[1] = "00:00:00";
+            }
+            $value = implode("T", $date_time);
+            //dsm($value,$key);
+          }
+          $tmp[0]['value'] = $value;
+
+          $node->$field_name = $tmp;
+          $i++;
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Let's check if this node type contains an image field.
+ *
+ * @param $fields fields from this content type
+ * @return boolean
+ */
+function _exif_check_for_exif_data($node_type) {
+
+  $new_types = array();
+  //fill up array with checked nodetypes
+  foreach (variable_get('exif_nodetypes', array()) as $type) {
+    if ($type != "0" ) {
+      $new_types[] = $type;
+    }
+  }
+  if (in_array($node_type, $new_types)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * From a given node we are going to get the imagepath of the image. if it's an image node
+ * it's just going to be images[IMAGE_ORIGINAL]. If it's an imagefield node, we have to go
+ * through the fields and look if there is an imagefield and then return the path
+ *
+ * @param $fields
+ * @param $node
+ * @return unknown_type
+ */
+function _exif_get_image_path($fields, &$node) {
+  if ($node->type == 'image') {
+    return $node->images[IMAGE_ORIGINAL];
+  }
+
+  foreach ($fields as $field) {
+    if ($field['type'] == 'filefield') {
+      $tmp = $node->$field['field_name'];
+      return $tmp[0]['filepath'];
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Just some help page. Gives you an overview over the available tags
+ * @return string html
+ */
+function exif_admin_settings() {
+  drupal_add_css(drupal_get_path('module', 'exif') .'/exif.css');
+  $filepath = drupal_get_path('module', 'exif') .'/sample.jpg';
+  $exif = _exif_get_class();
+  $ar_exif = read_exif_data($filepath, 0, TRUE);
+  // CCK field names must be lowercase
+  $ar_exif = array_change_key_case($ar_exif, CASE_LOWER);
+
+  $out = '';
+  $rows1 = array();
+  $help = t('This would be the keyword for your CCK field.');
+  foreach ($ar_exif as $key => $value) {
+    if (is_array($value)) {
+      $value = _exif_reformat($value);
+      $rows1[] = array('data' => array($key, $help), 'class' => 'tag_type');
+      foreach ($value as $key2 => $value2) {
+        $rows1[] = array('data' => array($key2, check_plain(utf8_encode($value2))));
+      }
+    }
+
+  }
+  $human_readable_key = $exif->getHumanReadableIPTCkey();
+  $size = GetImageSize($filepath, $info_image);
+  $iptc = iptcparse($info_image["APP13"]);
+  $rows2 = array();
+  $help = t('This would be the keyword for your CCK field.');
+  if (is_array($iptc)) {
+    $rows2[] = array('data' => array('IPTC', $help), 'class' => 'tag_type');
+    foreach ($iptc as $key => $value) {
+      $result_tag = "";
+      foreach ($value as $innerkey => $innervalue) {
+        if ( ($innerkey+1) != count($value) ) {
+          $result_tag .= $innervalue .", ";
+        }
+        else {
+          $result_tag .= $innervalue;
+        }
+      }
+      $rows2[] = array('data' => array($human_readable_key[$key], check_plain(utf8_encode($result_tag))));
+    }
+  }
+
+
+  $rows = array_merge($rows1, $rows2);
+  $header = array(t('Key'), t('Value'));
+  $out .= theme('table', $header, $rows, array('id' => 'exif-fields'));
+  // TODO Prevent binary data values from busting the page layout
+  return $out;
+}
+
+
+
+/**
+ * Helper function to reformat fields where required.
+ *
+ * Some values (lat/lon) break down into structures, not strings.
+ * Dates should be parsed nicely.
+ */
+function _exif_reformat($data) {
+  $date_array = array('datetimeoriginal', 'datetime', 'datetimedigitized');
+
+  // Make the key lowercase as CCK field names must be
+  $data = array_change_key_case($data, CASE_LOWER);
+
+  foreach ($data as $key => &$value) {
+    if (is_array($value))  {
+      $value = array_change_key_case($value, CASE_LOWER);
+    }
+    if ($key == 'gps_latitude') {
+      $value = _exif_DMS2D($value, $data['gps_gpslatituderef']);
+    }
+    elseif ($key == 'gps_longitude') {
+      $value = _exif_DMS2D($value, $data['gps_gpslongituderef']);
+    }
+    elseif (in_array($key, $date_array)) {
+      // In case we get a datefield, we need to reformat it to the ISO 8601 standard:
+      // which will look something like 2004-02-12T15:19:21
+      $date_time = explode(" ", $value);
+      $date_time[0] = str_replace(":", "-", $date_time[0]);
+      if (variable_get('exif_granularity', 0) == 1) {
+        $date_time[1] = "00:00:00";
+      }
+      $value = implode("T", $date_time);
+    }
+  }
+  return $data;
+}
+
+/**
+ * Helper function to change GPS co-ords into decimals.
+ */
+function _exif_DMS2D($value, $ref) {
+  $parts = split('/', $value[0]);
+  $dec = $parts[0] / $parts[1];
+
+  $parts = split('/', $value[1]);
+  $dec += ($parts[0] / $parts[1]) / 60;
+
+  $parts = split('/', $value[2]);
+  $dec += ($parts[0] / $parts[1]) / 3600;
+
+  if ($ref == 'S' || $ref == 'W') $dec *= -1;
+  return $dec;
+}
+
+/**
+ * Helper function to get the exif class
+ * @return Exif
+ */
+function _exif_get_class() {
+  include_once drupal_get_path('module', 'exif') .'/exif.class.php';
+  $exif = Exif::getInstance();
+  return $exif;
+}

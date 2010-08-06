@@ -1,0 +1,13 @@
+; $Id: tagadelic.info,v 1.1 2010/08/03 09:05:05 sajal Exp $
+name = Tagadelic
+description = Tagadelic makes weighted tag clouds from your taxonomy terms.
+core = 6.x
+dependencies[] = taxonomy
+package = "Taxonomy"
+
+; Information added by drupal.org packaging script on 2008-12-31
+version = "6.x-1.2"
+core = "6.x"
+project = "tagadelic"
+datestamp = "1230725138"
+

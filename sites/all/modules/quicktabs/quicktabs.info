@@ -1,0 +1,10 @@
+; $Id: quicktabs.info,v 1.1.1.1 2010/07/16 06:17:01 bhargav Exp $
+name = Quick Tabs
+description = Create blocks of tabbed views, blocks and nodes.
+core = 6.x
+; Information added by drupal.org packaging script on 2010-01-15
+version = "6.x-2.0-rc4"
+core = "6.x"
+project = "quicktabs"
+datestamp = "1263519006"
+

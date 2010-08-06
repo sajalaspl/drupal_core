@@ -1,0 +1,11 @@
+/* $Id: comment.css,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $ */
+
+.indented {
+  margin-left: 25px; /* LTR */
+}
+.comment-unpublished {
+  background-color: #fff4f4;
+}
+.preview .comment {
+  background-color: #ffffea;
+}
