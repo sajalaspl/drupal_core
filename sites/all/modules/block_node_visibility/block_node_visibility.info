@@ -1,0 +1,12 @@
+; $Id: block_node_visibility.info,v 1.1 2010/10/04 06:47:44 sajal Exp $
+name = "Block Node Visibility"
+description = "Select node types to associate with block visibility."
+dependencies[] = block
+
+core = 6.x
+; Information added by drupal.org packaging script on 2010-04-06
+version = "6.x-1.0"
+core = "6.x"
+project = "block_node_visibility"
+datestamp = "1270574405"
+
