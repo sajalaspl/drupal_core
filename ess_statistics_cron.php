@@ -1,5 +1,5 @@
 <?php
-// $Id: ess_statistics_cron.php,v 1.1 2012/04/03 07:07:26 sajal Exp $
+// $Id: ess_statistics_cron.php,v 1.2 2012/04/04 12:48:21 sajal Exp $
 /**
  * This cron script will execute at every mid-night. (11:55 pm). It will do following.
  * 
@@ -9,6 +9,7 @@
  * 
  *  Need to create two mysql tables. Also need to create INDEXES.
  */
+chdir(dirname(__FILE__));
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
