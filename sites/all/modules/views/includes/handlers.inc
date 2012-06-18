@@ -1,5 +1,5 @@
 <?php
-// $Id: handlers.inc,v 1.1 2010/06/29 07:05:39 sajal Exp $
+// $Id: handlers.inc,v 1.2 2012/05/31 08:47:33 sajal Exp $
 /**
  * @file handlers.inc
  * Defines the various handler objects to help build and display views.
@@ -1274,7 +1274,7 @@ class views_join {
           // And now deal with the value and the operator.  Set $q to
           // a single-quote for non-numeric values and the
           // empty-string for numeric values, then wrap all values in $q.
-          $raw_value = $this->db_safe($info['value']);
+          $raw_value = $this->db_safe($info['value'], $info);
           $q = (empty($info['numeric']) ? "'" : '');
 
           if (is_array($raw_value)) {
@@ -1316,7 +1316,7 @@ class views_join {
    * so something that needs floats in their joins needs to do their
    * own type checking.
    */
-  function db_safe($input) {
+  function db_safe($input, $info) {
     if (is_array($input)) {
       $output = array();
       foreach ($input as $value) {
