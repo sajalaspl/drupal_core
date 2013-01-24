@@ -1,4 +1,4 @@
-// $Id: tableheader.js,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: tableheader.js,v 1.2 2013/01/24 09:39:13 sajal Exp $
 
 Drupal.tableHeaderDoScroll = function() {
   if (typeof(Drupal.tableHeaderOnScroll)=='function') {
@@ -70,7 +70,7 @@ Drupal.behaviors.tableHeader = function (context) {
     // Get the height of the header table and scroll up that amount.
     if (prevAnchor != location.hash) {
       if (location.hash != '') {
-        var offset = $('td' + location.hash).offset();
+        var offset = $(document).find('td' + location.hash).offset();
         if (offset) {
           var top = offset.top;
           var scrollLocation = top - $(e).height();

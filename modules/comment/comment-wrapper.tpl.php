@@ -1,5 +1,5 @@
 <?php
-// $Id: comment-wrapper.tpl.php,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: comment-wrapper.tpl.php,v 1.2 2013/01/24 09:41:24 sajal Exp $
 
 /**
  * @file comment-wrapper.tpl.php
@@ -28,7 +28,6 @@
  *   - COMMENT_CONTROLS_HIDDEN
  *
  * @see template_preprocess_comment_wrapper()
- * @see theme_comment_wrapper()
  */
 ?>
 <div id="comments">

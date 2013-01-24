@@ -1,5 +1,5 @@
 <?php
-// $Id: dblog.install,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: dblog.install,v 1.2 2013/01/24 09:41:24 sajal Exp $
 
 /**
  * Implementation of hook_install().
@@ -101,7 +101,7 @@ function dblog_schema() {
 }
 
 /**
- * @defgroup updates-6.x-extra Extra database logging updates for 6.x
+ * @addtogroup updates-6.x-extra
  * @{
  */
 
@@ -115,6 +115,6 @@ function dblog_update_6000() {
 }
 
 /**
- * @} End of "defgroup updates-6.x-extra"
+ * @} End of "addtogroup updates-6.x-extra".
  * The next series of updates should start at 7000.
  */

@@ -1,4 +1,4 @@
-/* $Id: style.css,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $ */
+/* $Id: style.css,v 1.2 2013/01/24 09:42:21 sajal Exp $ */
 
 /**
  * Garland, for Drupal 6.x
@@ -223,7 +223,7 @@ tr.even {
 }
 
 tr.drag {
-  background-color: #fffff0;
+  background-color: #ffb;
 }
 
 tr.drag-previous {

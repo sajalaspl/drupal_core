@@ -1,5 +1,5 @@
 <?php
-// $Id: book.module,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: book.module,v 1.2 2013/01/24 09:41:24 sajal Exp $
 
 /**
  * @file
@@ -650,7 +650,7 @@ function book_build_active_trail($book_link) {
  * Appends book navigation to all nodes in the book, and handles book outline
  * insertions and updates via the node form.
  */
-function book_nodeapi(&$node, $op, $teaser, $page) {
+function book_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   switch ($op) {
     case 'load':
       // Note - we cannot use book_link_load() because it will call node_load()

@@ -1,5 +1,5 @@
 <?php
-// $Id: install.pgsql.inc,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: install.pgsql.inc,v 1.2 2013/01/24 09:38:42 sajal Exp $
 
 // PostgreSQL specific install functions
 
@@ -28,7 +28,7 @@ function drupal_test_pgsql($url, &$success) {
   $url = parse_url($url);
   $conn_string = '';
 
-  // Decode url-encoded information in the db connection string
+  // Decode urlencoded information in the db connection string
   if (isset($url['user'])) {
     $conn_string .= ' user='. urldecode($url['user']);
   }

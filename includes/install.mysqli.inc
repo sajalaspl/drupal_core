@@ -1,5 +1,5 @@
 <?php
-// $Id: install.mysqli.inc,v 1.1.1.1 2010/06/25 06:06:11 bhargav Exp $
+// $Id: install.mysqli.inc,v 1.2 2013/01/24 09:38:42 sajal Exp $
 
 // MySQLi specific install functions
 
@@ -27,7 +27,7 @@ function drupal_test_mysqli($url, &$success) {
 
   $url = parse_url($url);
 
-  // Decode url-encoded information in the db connection string.
+  // Decode urlencoded information in the db connection string.
   $url['user'] = urldecode($url['user']);
   $url['pass'] = isset($url['pass']) ? urldecode($url['pass']) : '';
   $url['host'] = urldecode($url['host']);
